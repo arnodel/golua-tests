@@ -71,9 +71,9 @@ assert("\u{10000}\u{10FFFF}" == "\xF0\x90\x80\x80\z\xF4\x8F\xBF\xBF")
 -- Error in escape sequences
 local function lexerror (s, err)
   local st, msg = load('return ' .. s, '')
-  if err ~= '<eof>' then err = err .. "'" end
+  if err ~= '<eof>' then err = "near .-" .. err .. "'" end
   assert(not st)
-  if not string.find(msg, "near .-" .. err) then
+  if not string.find(msg, err) then
     print(msg, err)
     assert(false)
   end

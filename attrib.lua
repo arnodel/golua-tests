@@ -11,7 +11,8 @@ assert(require"os" == os)
 assert(require"coroutine" == coroutine)
 
 assert(type(package.path) == "string")
-assert(type(package.cpath) == "string")
+-- Golua has not cpath of course!
+-- assert(type(package.cpath) == "string")
 assert(type(package.loaded) == "table")
 assert(type(package.preload) == "table")
 

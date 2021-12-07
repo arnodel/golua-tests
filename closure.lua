@@ -23,6 +23,9 @@ function f(x)
 end
 
 local a = f(10)
+
+-- Golua doesn't support weak tables
+--[==[
 -- force a GC in this level
 local x = {[1] = {}}   -- to detect a GC
 setmetatable(x, {__mode = 'kv'})
@@ -30,6 +33,8 @@ while x[1] do   -- repeat until GC
   local a = A..A..A..A  -- create garbage
   A = A+1
 end
+]==]
+for i = 1, 10 do A = A + 1 end
 assert(a[1]() == 20+A)
 assert(a[1]() == 30+A)
 assert(a[2]() == 10+A)
@@ -38,7 +43,7 @@ assert(a[2]() == 20+A)
 assert(a[2]() == 30+A)
 assert(a[3]() == 20+A)
 assert(a[8]() == 10+A)
-assert(getmetatable(x).__mode == 'kv')
+-- assert(getmetatable(x).__mode == 'kv')
 assert(B.g == 19)
 
 
@@ -226,7 +231,8 @@ assert(debug.upvalueid(foo3, 1))
 assert(debug.upvalueid(foo1, 1) ~= debug.upvalueid(foo3, 1))
 assert(debug.upvalueid(foo1, 2) == debug.upvalueid(foo3, 2))
 
-assert(debug.upvalueid(string.gmatch("x", "x"), 1) ~= nil)
+-- In Golua string.gmatch doesn't have upvalues (not a closure)
+-- assert(debug.upvalueid(string.gmatch("x", "x"), 1) ~= nil)
 
 assert(foo1() == 3 + 5 and foo2() == 5 + 3)
 debug.upvaluejoin(foo1, 2, foo2, 2)
