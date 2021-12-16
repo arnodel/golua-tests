@@ -202,7 +202,8 @@ local debug = require "debug"
 print(string.format("%d-bit integers, %d-bit floats",
         string.packsize("j") * 8, string.packsize("n") * 8))
 
-debug.sethook(function (a) assert(type(a) == 'string') end, "cr")
+-- Sethook is not implemented in Golua at the moment.
+-- debug.sethook(function (a) assert(type(a) == 'string') end, "cr")
 
 -- to survive outside block
 _G.showmem = showmem
