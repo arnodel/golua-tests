@@ -14,6 +14,7 @@ assert(io.output(io.stdout) == io.stdout)
 
 local function testerr (msg, f, ...)
   local stat, err = pcall(f, ...)
+  print(stat, err, msg)
   return (not stat and string.find(err, msg, 1, true))
 end
 
@@ -89,8 +90,8 @@ assert(io.output():seek("end") == string.len("alo joao"))
 
 assert(io.output():seek("set") == 0)
 
-assert(io.write('"Ã¡lo"', "{a}\n", "second line\n", "third line \n"))
-assert(io.write('Ã§fourth_line'))
+assert(io.write('"álo"', "{a}\n", "second line\n", "third line \n"))
+assert(io.write('çfourth_line'))
 io.output(io.stdout)
 collectgarbage()  -- file should be closed by GC
 assert(io.input() == io.stdin and rawequal(io.output(), io.stdout))
@@ -250,14 +251,14 @@ do  -- test error returns
 end
 checkerr("invalid format", io.read, "x")
 assert(io.read(0) == "")   -- not eof
-assert(io.read(5, 'l') == '"Ã¡lo"')
+assert(io.read(5, 'l') == '"álo"')
 assert(io.read(0) == "")
 assert(io.read() == "second line")
 local x = io.input():seek()
 assert(io.read() == "third line ")
 assert(io.input():seek("set", x))
 assert(io.read('L') == "third line \n")
-assert(io.read(1) == "Ã§")
+assert(io.read(1) == "ç")
 assert(io.read(string.len"fourth_line") == "fourth_line")
 assert(io.input():seek("cur", -string.len"fourth_line"))
 assert(io.read() == "fourth_line")
@@ -277,7 +278,7 @@ assert(io.read('a') == '')  -- end of file (OK for 'a')
 collectgarbage()
 print('+')
 io.close(io.input())
-checkerr(" input file is closed", io.read)
+checkerr("file already closed", io.read)
 
 assert(os.remove(file))
 
@@ -288,7 +289,7 @@ assert(string.len(t) == 10*2^10)
 io.output(file)
 io.write("alo"):write("\n")
 io.close()
-checkerr(" output file is closed", io.write)
+checkerr("file already closed", io.write)
 local f = io.open(file, "a+b")
 io.output(f)
 collectgarbage()
@@ -375,6 +376,7 @@ assert(t.a == -((10 + 34) * 2))
 -- test for multipe arguments in 'lines'
 io.output(file); io.write"0123456789\n":close()
 for a,b in io.lines(file, 1, 1) do
+  print(a, b)
   if a == "\n" then assert(b == nil)
   else assert(tonumber(a) == tonumber(b) - 1)
   end
@@ -519,7 +521,7 @@ do
   assert(not s and string.find(m, "a text chunk"))
   io.open(file, 'w'):write("\27 return 10"):close()
   local s, m = loadfile(file, 't')
-  assert(not s and string.find(m, "a binary chunk"))
+  assert(not s and string.find(m, ":1:1: invalid token"))
   assert(os.remove(file))
 end
 
@@ -694,12 +696,12 @@ load(os.date([[assert(D.year==%Y and D.month==%m and D.day==%d and
   D.hour==%H and D.min==%M and D.sec==%S and
   D.wday==%w+1 and D.yday==%j and type(D.isdst) == 'boolean')]], t))()
 
-checkerr("invalid conversion specifier", os.date, "%")
-checkerr("invalid conversion specifier", os.date, "%9")
-checkerr("invalid conversion specifier", os.date, "%")
-checkerr("invalid conversion specifier", os.date, "%O")
-checkerr("invalid conversion specifier", os.date, "%E")
-checkerr("invalid conversion specifier", os.date, "%Ea")
+checkerr("unknown directive", os.date, "%")
+checkerr("unknown directive", os.date, "%9")
+checkerr("unknown directive", os.date, "%")
+checkerr("unknown directive", os.date, "%O")
+checkerr("unknown directive", os.date, "%E")
+checkerr("unknown directive", os.date, "%Ea")
 
 checkerr("not an integer", os.time, {year=1000, month=1, day=1, hour='x'})
 checkerr("not an integer", os.time, {year=1000, month=1, day=1, hour=1.5})
