@@ -14,7 +14,6 @@ assert(io.output(io.stdout) == io.stdout)
 
 local function testerr (msg, f, ...)
   local stat, err = pcall(f, ...)
-  print(stat, err, msg)
   return (not stat and string.find(err, msg, 1, true))
 end
 
@@ -376,7 +375,6 @@ assert(t.a == -((10 + 34) * 2))
 -- test for multipe arguments in 'lines'
 io.output(file); io.write"0123456789\n":close()
 for a,b in io.lines(file, 1, 1) do
-  print(a, b)
   if a == "\n" then assert(b == nil)
   else assert(tonumber(a) == tonumber(b) - 1)
   end
