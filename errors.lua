@@ -444,7 +444,7 @@ do
 
   -- 'assert' with extra arguments
   res, msg = pcall(assert, false, "X", t)
-  assert(not res and msg == "X")
+  assert(not res and string.match("X$", msg)
  
   -- 'assert' with no message
   res, msg = pcall(function () assert(false) end)
