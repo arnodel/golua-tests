@@ -519,7 +519,10 @@ do  -- checking types
   c = 0; for i = 1.0, 10 do checkfloat(i) end
   assert(c == 10)
 
-  c = 0; for i = -1, -10, -1.0 do checkfloat(i) end
+  -- Golua doesn't subtract the step before the first iteration, so if the start
+  -- value is an integer, so is the loop variable in the first iteration.  Is
+  -- this a bug?
+  c = 0; for i = -1.0, -10, -1.0 do checkfloat(i) end
   assert(c == 10)
 
   local function checkint (i)

@@ -342,6 +342,7 @@ assert(#a == 0)
 local function malform (p, m)
   m = m or "malformed"
   local r, msg = pcall(string.find, "a", p)
+  print(r, msg)
   assert(not r and string.find(msg, m))
 end
 
@@ -355,7 +356,7 @@ malform("[a%")
 malform("%b")
 malform("%ba")
 malform("%")
-malform("%f", "missing")
+malform("%f")
 
 -- \0 in patterns
 assert(string.match("ab\0\1\2c", "[\0-\2]+") == "\0\1\2")

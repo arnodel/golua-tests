@@ -312,9 +312,12 @@ x = load(string.dump(function (x)
   end
 end), "", "b", nil)
 assert(x() == nil)
-assert(debug.setupvalue(x, 1, "hi") == "a")
+upidx = {} -- Golua doesn't necessarily keep upvalues in the same order as Lua
+upidx[debug.getupvalue(x, 1)] = 1
+upidx[debug.getupvalue(x, 2)] = 2
+assert(debug.setupvalue(x, upidx.a, "hi") == "a")
 assert(x() == "hi")
-assert(debug.setupvalue(x, 2, 13) == "b")
+assert(debug.setupvalue(x, upidx.b, 13) == "b")
 assert(not debug.setupvalue(x, 3, 10))   -- only 2 upvalues
 x("set")
 assert(x() == 23)
@@ -360,7 +363,8 @@ assert((function () return nil end)(4) == nil)
 assert((function () local a; return a end)(4) == nil)
 assert((function (a) return a end)() == nil)
 
-
+-- Golua binary chunks are not compatible with Lua
+--[=====[
 print("testing binary chunks")
 do
   local header = string.pack("c4BBc6BBBBBj",
@@ -396,6 +400,7 @@ do
   end
   assert(assert(load(c))() == 10)
 end
+]=====]
 
 print('OK')
 return deep
