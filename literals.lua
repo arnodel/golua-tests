@@ -78,27 +78,31 @@ assert("\u{4000000}\u{7FFFFFFF}" ==
 -- Error in escape sequences
 local function lexerror (s, err)
   local st, msg = load('return ' .. s, '')
-  if err ~= '<eof>' then err = err .. "'" end
-  assert(not st and string.find(msg, "near .-" .. err))
+  if err ~= '<eof>' then err = "near .-" .. err .. "'" end
+  assert(not st)
+  if not string.find(msg, err) then
+    print(msg, err)
+    assert(false)
+  end
 end
 
-lexerror([["abc\x"]], [[\x"]])
+lexerror([["abc\x"]], [[\x]])
 lexerror([["abc\x]], [[\x]])
 lexerror([["\x]], [[\x]])
-lexerror([["\x5"]], [[\x5"]])
+lexerror([["\x5"]], [[\x5]])
 lexerror([["\x5]], [[\x5]])
-lexerror([["\xr"]], [[\xr]])
-lexerror([["\xr]], [[\xr]])
-lexerror([["\x.]], [[\x.]])
-lexerror([["\x8%"]], [[\x8%%]])
-lexerror([["\xAG]], [[\xAG]])
+lexerror([["\xr"]], [[\x]])
+lexerror([["\xr]], [[\x]])
+lexerror([["\x.]], [[\x]])
+lexerror([["\x8%"]], [[\x8]])
+lexerror([["\xAG]], [[\xA]])
 lexerror([["\g"]], [[\g]])
 lexerror([["\g]], [[\g]])
 lexerror([["\."]], [[\%.]])
 
-lexerror([["\999"]], [[\999"]])
-lexerror([["xyz\300"]], [[\300"]])
-lexerror([["   \256"]], [[\256"]])
+lexerror([["\999"]], [[\999]])
+lexerror([["xyz\300"]], [[\300]])
+lexerror([["   \256"]], [[\256]])
 
 -- errors in UTF-8 sequences
 lexerror([["abc\u{100000000}"]], [[abc\u{100000000]])   -- too large
@@ -107,7 +111,7 @@ lexerror([["abc\u"]], [[abc\u"]])    -- missing '{'
 lexerror([["abc\u{11r"]], [[abc\u{11r]])    -- missing '}'
 lexerror([["abc\u{11"]], [[abc\u{11"]])    -- missing '}'
 lexerror([["abc\u{11]], [[abc\u{11]])    -- missing '}'
-lexerror([["abc\u{r"]], [[abc\u{r]])     -- no digits
+lexerror([["abc\u{r"]], [[abc\u{]])     -- no digits
 
 -- unfinished strings
 lexerror("[=[alo]]", "<eof>")

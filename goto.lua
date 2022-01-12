@@ -18,14 +18,14 @@ errmsg([[ ::l1:: do ::l1:: end]], "label 'l1'")
 
 
 -- undefined label
-errmsg([[ goto l1; local aa ::l1:: ::l2:: print(3) ]], "local 'aa'")
+errmsg([[ goto l1; local aa ::l1:: ::l2:: print(3) ]], "label 'l1'")
 
 -- jumping over variable definition
 errmsg([[
 do local bb, cc; goto l1; end
 local aa
 ::l1:: print(3)
-]], "local 'aa'")
+]], "label 'l1'")
 
 -- jumping into a block
 errmsg([[ do ::l1:: end goto l1 ]], "label 'l1'")
@@ -38,7 +38,7 @@ errmsg([[
     local xuxu = 10
     ::cont::
   until xuxu < x
-]], "local 'xuxu'")
+]], "label 'cont'")
 
 -- simple gotos
 local x

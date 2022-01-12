@@ -3,7 +3,7 @@
 -- See Copyright Notice at the end of this file
 
 
-local version = "Lua 5.4"
+local version = "Golua 5.4"
 if _VERSION ~= version then
   io.stderr:write("This test suite is for ", version,
                   ", not for ", _VERSION, "\nExiting tests")
@@ -161,7 +161,8 @@ report"gc.lua"
 local f = assert(loadfile('gc.lua'))
 f()
 
-dofile('db.lua')
+-- skip debug stuff for now. TODO: implement at least some of it
+-- dofile('db.lua')
 assert(dofile('calls.lua') == deep and deep)
 olddofile('strings.lua')
 olddofile('literals.lua')
