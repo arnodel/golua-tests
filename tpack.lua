@@ -204,7 +204,7 @@ do
 
   checkerror("contains zeros", pack, "z", "alo\0");
 
-  checkerror("unfinished string", unpack, "zc10000000", "alo")
+  checkerror("unexpected end", unpack, "zc10000000", "alo")
 
   for i = 2, NB do
     local s1 = pack("s" .. i, s)
