@@ -9,14 +9,17 @@ assert(collectgarbage("isrunning"))
 
 collectgarbage()
 
-local oldmode = collectgarbage("incremental")
+-- Golua doesn't support different modes
+-- local oldmode = collectgarbage("incremental")
 
 -- changing modes should return previous mode
+
+--[[
 assert(collectgarbage("generational") == "incremental")
 assert(collectgarbage("generational") == "generational")
 assert(collectgarbage("incremental") == "generational")
 assert(collectgarbage("incremental") == "incremental")
-
+]]
 
 local function nop () end
 
@@ -687,6 +690,6 @@ do    -- check that the collector is reentrant in incremental mode
 end
 
 
-collectgarbage(oldmode)
+-- collectgarbage(oldmode)
 
 print('OK')
