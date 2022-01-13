@@ -181,7 +181,7 @@ do   -- constants
   assert(a == 10 and b == 60 and c == 30)
   local function checkro (name, code)
     local st, msg = load(code)
-    local gab = string.format("attempt to assign to const variable '%s'", name)
+    local gab = string.format("attempt to reassign constant variable '%s'", name)
     assert(not st and string.find(msg, gab))
   end
   checkro("y", "local x, y <const>, z = 10, 20, 30; x = 11; y = 12")
