@@ -316,7 +316,7 @@ local function malformednum (n, exp)
 end
 
 malformednum("0xe-", "near <eof>")
-malformednum("0xep-p", "malformed number")
-malformednum("1print()", "malformed number")
+malformednum("0xep-p", "digit required after exponent")
+malformednum("1print()", "illegal character following number")
 
 print('OK')
