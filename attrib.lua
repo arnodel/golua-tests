@@ -49,6 +49,8 @@ do
 end
 
 
+--[=[ For now disable this test, as Golua has no cpath.
+-- Should be able to test the non cpath bit
 do  print"testing 'require' message"
   local oldpath = package.path
   local oldcpath = package.cpath
@@ -70,6 +72,7 @@ do  print"testing 'require' message"
   package.path = oldpath
   package.cpath = oldcpath
 end
+]=]
 
 print('+')
 
