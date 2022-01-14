@@ -18,10 +18,12 @@ local function checkerror (msg, f, ...)
 end
 
 do  print("testing stack overflow in message handling")
+  -- In Golua functions do not fill the stack, so we simulate it...
   local count = 0
-  local function loop (x, y, z)
+  local function loop (x, y, z, n)
+    if n == 10000 then error("stack overflow") end
     count = count + 1
-    return 1 + loop(x, y, z)
+    return 1 + loop(x, y, z, (n or 0) + 1)
   end
   tracegc.stop()    -- __gc should not be called with a full stack
   local res, msg = xpcall(loop, loop)
