@@ -532,9 +532,11 @@ end
 
 
 do    -- test for tbc variable high in the stack
-
-   -- function to force a stack overflow
+  
+  -- function to force a stack overflow
   local function overflow (n)
+    -- Golua doesn't have a call stack to overflow...
+    if n == 10000 then error("stack overflow") end
     overflow(n + 1)
   end
 
