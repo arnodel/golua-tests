@@ -737,7 +737,7 @@ do   -- '__close' vs. return hooks in Lua functions
   debug.sethook()
   checktable(t, {10, 20, 30})
   checktable(trace,
-    {"return sethook", "return close", "x", "return close", "return foo"})
+    {"return sethook", "return <lua function>", "x", "return <lua function>", "return foo"})
 end
 
 
