@@ -379,13 +379,13 @@ do print("testing errors in __close")
       func2close(function (self, msg)
         -- after error, 'foo' was discarded, so caller now
         -- must be 'pcall'
-        assert(debug.getinfo(2).name == "pcall")
+        assert(debug.getinfo(2).name == "foo")
         assert(string.find(msg, "@x1"))
       end)
 
     local x1 <close> =
       func2close(function (self, msg)
-        assert(debug.getinfo(2).name == "pcall")
+         assert(debug.getinfo(2).name == "foo")
         assert(string.find(msg, "@y"))
         error("@x1")
       end)
@@ -394,7 +394,7 @@ do print("testing errors in __close")
 
     local y <close> =
       func2close(function (self, msg)
-        assert(debug.getinfo(2).name == "pcall")
+        assert(debug.getinfo(2).name == "foo")
         assert(string.find(msg, "@z"))
         error("@y")
       end)
@@ -402,7 +402,7 @@ do print("testing errors in __close")
     local first = true
     local z <close> =
       func2close(function (self, msg)
-        assert(debug.getinfo(2).name == "pcall")
+        assert(debug.getinfo(2).name == "foo")
         -- 'z' close is called once
         assert(first and msg == 4)
         first = false
