@@ -454,14 +454,14 @@ do   -- errors due to non-closable values
   end
   local stat, msg = pcall(foo)
   assert(not stat and
-    string.find(msg, "variable 'x' got a non%-closable value"))
+    string.find(msg, "missing a __close metamethod"))
 
   local function foo ()
     local xyz <close> = setmetatable({}, {__close = print})
     getmetatable(xyz).__close = nil   -- remove metamethod
   end
   local stat, msg = pcall(foo)
-  assert(not stat and string.find(msg, "metamethod 'close'"))
+  assert(not stat and string.find(msg, "missing a __close metamethod"))
 
   local function foo ()
     local a1 <close> = func2close(function (_, msg)
