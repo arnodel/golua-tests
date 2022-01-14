@@ -443,7 +443,7 @@ do print("testing errors in __close")
 
   local st, msg = xpcall(foo, debug.traceback)
   assert(string.match(msg, "^[^ ]* @x123"))
-  assert(string.find(msg, "in metamethod 'close'"))
+  assert(string.find(msg, "in function <lua function>"))
 end
 
 
