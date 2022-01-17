@@ -172,13 +172,13 @@ assert(a // (1/0) == a); checkcap{"idiv", a, 1/0}
 assert(a | "hi" == a); checkcap{"bor", a, "hi"}
 assert("hi" ~ a == "hi"); checkcap{"bxor", "hi", a}
 ;(function () assert(10 ~ a == 10) end)(); checkcap{"bxor", 10, a}
-assert(-a == a); checkcap{"unm", a, a}
+assert(-a == a); checkcap{"unm", a}
 assert(a^4.0 == a); checkcap{"pow", a, 4.0}
 assert(a^'4' == a); checkcap{"pow", a, '4'}
 assert(4^a == 4); checkcap{"pow", 4, a}
 assert('4'^a == '4'); checkcap{"pow", '4', a}
-assert(#a == a); checkcap{"len", a, a}
-assert(~a == a); checkcap{"bnot", a, a}
+assert(#a == a); checkcap{"len", a}
+assert(~a == a); checkcap{"bnot", a}
 assert(a << 3 == a); checkcap{"shl", a, 3}
 assert(1.5 >> a == 1.5); checkcap{"shr", 1.5, a}
 
