@@ -115,17 +115,17 @@ do
 end
 
 -- error in initial position for offset
-checkerror("position out of bounds", utf8.offset, "abc", 1, 5)
-checkerror("position out of bounds", utf8.offset, "abc", 1, -4)
-checkerror("position out of bounds", utf8.offset, "", 1, 2)
-checkerror("position out of bounds", utf8.offset, "", 1, -1)
+checkerror("position out of range", utf8.offset, "abc", 1, 5)
+checkerror("position out of range", utf8.offset, "abc", 1, -4)
+checkerror("position out of range", utf8.offset, "", 1, 2)
+checkerror("position out of range", utf8.offset, "", 1, -1)
 checkerror("continuation byte", utf8.offset, "𦧺", 1, 2)
 checkerror("continuation byte", utf8.offset, "𦧺", 1, 2)
 checkerror("continuation byte", utf8.offset, "\x80", 1)
 
 -- error in indices for len
-checkerror("out of bounds", utf8.len, "abc", 0, 2)
-checkerror("out of bounds", utf8.len, "abc", 1, 4)
+checkerror("out of range", utf8.len, "abc", 0, 2)
+checkerror("out of range", utf8.len, "abc", 1, 4)
 
 
 local s = "hello World"
