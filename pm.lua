@@ -359,7 +359,6 @@ assert(#a == 0)
 local function malform (p, m)
   m = m or "malformed"
   local r, msg = pcall(string.find, "a", p)
-  print(r, msg)
   assert(not r and string.find(msg, m))
 end
 
