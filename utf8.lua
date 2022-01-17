@@ -140,11 +140,11 @@ do
   local t = {utf8.codepoint(s,1,#s - 1)}
   assert(#t == 3 and t[1] == 225 and t[2] == 233 and t[3] == 237)
   checkerror("invalid UTF%-8 code", utf8.codepoint, s, 1, #s)
-  checkerror("out of bounds", utf8.codepoint, s, #s + 1)
+  checkerror("out of range", utf8.codepoint, s, #s + 1)
   t = {utf8.codepoint(s, 4, 3)}
   assert(#t == 0)
-  checkerror("out of bounds", utf8.codepoint, s, -(#s + 1), 1)
-  checkerror("out of bounds", utf8.codepoint, s, 1, #s + 1)
+  checkerror("out of range", utf8.codepoint, s, -(#s + 1), 1)
+  checkerror("out of range", utf8.codepoint, s, 1, #s + 1)
   -- surrogates
   assert(utf8.codepoint("\u{D7FF}") == 0xD800 - 1)
   assert(utf8.codepoint("\u{E000}") == 0xDFFF + 1)
