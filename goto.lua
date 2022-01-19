@@ -227,9 +227,9 @@ local function testG (a)
   elseif a == 2 then goto l2
   elseif a == 3 then goto l3
   elseif a == 4 then
-    goto l1  -- go to inside the block
+    goto l11  -- go to inside the block
     error("should never be here!")
-    ::l1:: a = a + 1   -- must go to 'if' end
+    ::l11:: a = a + 1   -- must go to 'if' end
   else
     goto l4
     ::l4a:: a = a * 2; goto l4b
