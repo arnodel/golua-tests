@@ -618,6 +618,10 @@ local function testrep (init, rep, close, repc, finalresult)
                       string.find(msg, "overflow")))
 end
 
+-- Disable these tests because there is no machinery to count levels in Golua.
+-- Instead an upper bound can be given to the compiler so it won't use too many
+-- resources.
+--[[
 testrep("local a; a", ",a", "= 1", ",1")    -- multiple assignment
 testrep("local a; a=", "{", "0", "}")
 testrep("return ", "(", "2", ")", 2)
@@ -628,6 +632,7 @@ testrep("local a; ", "if a then else ", "", " end")
 testrep("", "function foo () ", "", " end")
 testrep("local a = ''; return ", "a..", "'a'", "", "a")
 testrep("local a = 1; return ", "a^", "a", "", 1)
+]]
 
 -- Golua doesn't necessarily run out of registers when calling a function (e.g.
 -- if f is defined with ellipsis)
