@@ -92,8 +92,8 @@ assert(io.output():seek("end") == string.len("alo joao"))
 
 assert(io.output():seek("set") == 0)
 
-assert(io.write('"álo"', "{a}\n", "second line\n", "third line \n"))
-assert(io.write('çfourth_line'))
+assert(io.write('"ÃƒÂ¡lo"', "{a}\n", "second line\n", "third line \n"))
+assert(io.write('ÃƒÂ§fourth_line'))
 io.output(io.stdout)
 collectgarbage()  -- file should be closed by GC
 assert(io.input() == io.stdin and rawequal(io.output(), io.stdout))
@@ -302,14 +302,14 @@ do  -- test error returns
 end
 checkerr("invalid format", io.read, "x")
 assert(io.read(0) == "")   -- not eof
-assert(io.read(5, 'l') == '"álo"')
+assert(io.read(5, 'l') == '"ÃƒÂ¡lo"')
 assert(io.read(0) == "")
 assert(io.read() == "second line")
 local x = io.input():seek()
 assert(io.read() == "third line ")
 assert(io.input():seek("set", x))
 assert(io.read('L') == "third line \n")
-assert(io.read(1) == "ç")
+assert(io.read(1) == "ÃƒÂ§")
 assert(io.read(string.len"fourth_line") == "fourth_line")
 assert(io.input():seek("cur", -string.len"fourth_line"))
 assert(io.read() == "fourth_line")
@@ -423,7 +423,8 @@ local t = {}
 assert(load(io.lines(file, "L"), nil, nil, t))()
 assert(t.a == -((10 + 34) * 2))
 
-
+-- This test is disabled because Golua doesn't have debug.getlocal
+--[[
 do   -- testing closing file in line iteration
 
   -- get the to-be-closed variable from a loop
@@ -459,7 +460,7 @@ do   -- testing closing file in line iteration
   assert(st == false and io.type(msg) == "closed file")
 
 end
-
+]]
 
 -- test for multipe arguments in 'lines'
 io.output(file); io.write"0123456789\n":close()
