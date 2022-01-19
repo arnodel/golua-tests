@@ -201,12 +201,12 @@ checkmessage("a = 1 % 0", "'n%0'")
 -- The following code will try to index the value 10 that is stored in
 -- the metatable, without moving it to a register.
 checkmessage("local a = setmetatable({}, {__index = 10}).x",
-             "attempt to index a number value")
+             "attempt to call a number value")
 
 
 -- numeric for loops
 checkmessage("for i = {}, 10 do end", "table")
-checkmessage("for i = io.stdin, 10 do end", "FILE")
+checkmessage("for i = io.stdin, 10 do end", "file")
 checkmessage("for i = {}, 10 do end", "initial value")
 checkmessage("for i = 1, 'x', 10 do end", "string")
 checkmessage("for i = 1, {}, 10 do end", "limit")
