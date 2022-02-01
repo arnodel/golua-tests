@@ -37,6 +37,9 @@ end
 -- tests should require debug when needed
 debug = nil
 
+-- File tests currently fail on Windows, temporarily disable them until it's
+-- possible to investigate properly.
+_platform = rawget(_G, "_OS")
 
 if usertests then
   T = nil    -- no "internal" tests for user tests
