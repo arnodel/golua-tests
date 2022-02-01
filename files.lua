@@ -100,6 +100,8 @@ assert(io.input() == io.stdin and rawequal(io.output(), io.stdout))
 print('+')
 
 -- test GC for files
+-- Disabled in Golua until __gc is implemented
+--[[
 collectgarbage()
 for i=1,120 do
   for i=1,5 do
@@ -113,6 +115,7 @@ end
 
 io.input():close()
 io.close()
+]]
 
 assert(os.rename(file, otherfile))
 assert(not os.rename(file, otherfile))
