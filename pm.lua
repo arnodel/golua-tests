@@ -372,7 +372,7 @@ malform("[a%")
 malform("%b")
 malform("%ba")
 malform("%")
-malform("%f", "missing")
+malform("%f")
 
 -- \0 in patterns
 assert(string.match("ab\0\1\2c", "[\0-\2]+") == "\0\1\2")
