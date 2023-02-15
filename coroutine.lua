@@ -381,7 +381,8 @@ local x = coroutine.wrap (function ()
             end
           end)
 
-C[1] = x;
+-- See above
+-- C[1] = x;
 
 local f = x()
 assert(f() == 21 and x()() == 32 and x() == f)
@@ -624,7 +625,7 @@ else
 
 
   -- resuming running coroutine
-  C = coroutine.create(function ()
+  local C = coroutine.create(function ()
         return T.testC([[
                  pushnum 10;
                  pushnum 20;
