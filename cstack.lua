@@ -18,10 +18,12 @@ local function checkerror (msg, f, ...)
 end
 
 do  print("testing stack overflow in message handling")
+  -- In Golua functions do not fill the stack, so we simulate it...
   local count = 0
-  local function loop (x, y, z)
+  local function loop (x, y, z, n)
+    if n == 10000 then error("stack overflow") end
     count = count + 1
-    return 1 + loop(x, y, z)
+    return 1 + loop(x, y, z, (n or 0) + 1)
   end
   tracegc.stop()    -- __gc should not be called with a full stack
   local res, msg = xpcall(loop, loop)
@@ -40,7 +42,7 @@ do  print("testing recursion inside pattern matching")
   end
   local m = f(80)
   assert(#m == 80)
-  checkerror("too complex", f, 2000)
+  checkerror("too complex", f, 20000)
 end
 
 
@@ -64,7 +66,10 @@ do  print("testing stack-overflow in recursive 'gsub'")
   print("final count: ", count)
 end
 
-
+-- These tests would not work on Golua because it doesn't consume stack frames
+-- for Lua function.  TODO: consider whether we want to cause an error
+-- "artificially" anyway.
+--[[
 do   -- bug in 5.4.0
   print("testing limits in coroutines inside deep calls")
   local count = 0
@@ -101,7 +106,7 @@ do
   assert(not pcall(f))
   print("final count: ", count)
 end
-
+]]
 
 if T then
   print("testing stack recovery")

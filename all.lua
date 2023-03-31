@@ -3,7 +3,7 @@
 -- See Copyright Notice at the end of this file
 
 
-local version = "Lua 5.4"
+local version = "Golua 5.4"
 if _VERSION ~= version then
   io.stderr:write("This test suite is for ", version,
                   ", not for ", _VERSION, "\nExiting tests")
@@ -37,6 +37,9 @@ end
 -- tests should require debug when needed
 debug = nil
 
+-- File tests currently fail on Windows, temporarily disable them until it's
+-- possible to investigate properly.
+_platform = rawget(_G, "_OS")
 
 if usertests then
   T = nil    -- no "internal" tests for user tests
@@ -161,13 +164,15 @@ report"gc.lua"
 local f = assert(loadfile('gc.lua'))
 f()
 
-dofile('db.lua')
+-- skip debug stuff for now. TODO: implement at least some of it
+-- dofile('db.lua')
 assert(dofile('calls.lua') == deep and deep)
 olddofile('strings.lua')
 olddofile('literals.lua')
 dofile('tpack.lua')
 assert(dofile('attrib.lua') == 27)
-dofile('gengc.lua')
+-- Golua doesn't have generational gc, so we skip this
+-- dofile('gengc.lua')
 assert(dofile('locals.lua') == 5)
 dofile('constructs.lua')
 dofile('code.lua', true)

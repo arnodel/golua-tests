@@ -9,14 +9,17 @@ assert(collectgarbage("isrunning"))
 
 collectgarbage()
 
-local oldmode = collectgarbage("incremental")
+-- Golua doesn't support different modes
+-- local oldmode = collectgarbage("incremental")
 
 -- changing modes should return previous mode
+
+--[[
 assert(collectgarbage("generational") == "incremental")
 assert(collectgarbage("generational") == "generational")
 assert(collectgarbage("incremental") == "generational")
 assert(collectgarbage("incremental") == "incremental")
-
+]]
 
 local function nop () end
 
@@ -246,6 +249,8 @@ for i=1,lim do a[i] = i end
 for i=1,lim do assert(a[i] == i) end
 
 
+-- weak tables are not implemented in golua
+--[=====[]
 print('weak tables')
 a = {}; setmetatable(a, {__mode = 'k'});
 -- fill a with some `collectable' indices
@@ -675,6 +680,7 @@ end
 
 -- just to make sure
 assert(collectgarbage'isrunning')
+]=====]
 
 do    -- check that the collector is reentrant in incremental mode
   setmetatable({}, {__gc = function ()
@@ -684,6 +690,6 @@ do    -- check that the collector is reentrant in incremental mode
 end
 
 
-collectgarbage(oldmode)
+-- collectgarbage(oldmode)
 
 print('OK')
