@@ -212,10 +212,10 @@ print'+';
 
 do   -- testing constants
   local prog <const> = [[local x <XXX> = 10]]
-  checkload(prog, "unknown attribute 'XXX'")
+  checkload(prog, "expected 'const' or 'close' near 'XXX'")
 
   checkload([[local xxx <const> = 20; xxx = 10]],
-             ":1: attempt to assign to const variable 'xxx'")
+             ":1:%d+: attempt to reassign constant variable 'xxx'")
 
   checkload([[
     local xx;
@@ -225,12 +225,12 @@ do   -- testing constants
       local abc = xx + yyy + xxx;
       return function () return function () xxx = yyy end end
     end
-  ]], ":6: attempt to assign to const variable 'xxx'")
+  ]], ":6:%d+: attempt to reassign constant variable 'xxx'")
 
   checkload([[
     local x <close> = nil
     x = io.open()
-  ]], ":2: attempt to assign to const variable 'x'")
+  ]], ":2:%d+: attempt to reassign constant variable 'x'")
 end
 
 f = [[

@@ -11,7 +11,8 @@ assert(require"os" == os)
 assert(require"coroutine" == coroutine)
 
 assert(type(package.path) == "string")
-assert(type(package.cpath) == "string")
+-- Golua has not cpath of course!
+-- assert(type(package.cpath) == "string")
 assert(type(package.loaded) == "table")
 assert(type(package.preload) == "table")
 
@@ -48,6 +49,8 @@ do
 end
 
 
+--[=[ For now disable this test, as Golua has no cpath.
+-- Should be able to test the non cpath bit
 do  print"testing 'require' message"
   local oldpath = package.path
   local oldcpath = package.cpath
@@ -69,6 +72,7 @@ do  print"testing 'require' message"
   package.path = oldpath
   package.cpath = oldcpath
 end
+]=]
 
 print('+')
 

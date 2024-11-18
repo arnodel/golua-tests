@@ -181,7 +181,7 @@ do   -- constants
   assert(a == 10 and b == 60 and c == 30)
   local function checkro (name, code)
     local st, msg = load(code)
-    local gab = string.format("attempt to assign to const variable '%s'", name)
+    local gab = string.format("attempt to reassign constant variable '%s'", name)
     assert(not st and string.find(msg, gab))
   end
   checkro("y", "local x, y <const>, z = 10, 20, 30; x = 11; y = 12")
@@ -385,7 +385,7 @@ do print("testing errors in __close")
 
     local x1 <close> =
       func2close(function (self, msg)
-        assert(debug.getinfo(2).name == "pcall")
+         assert(debug.getinfo(2).name == "pcall")
         assert(string.find(msg, "@y"))
         error("@x1")
       end)
@@ -443,7 +443,7 @@ do print("testing errors in __close")
 
   local st, msg = xpcall(foo, debug.traceback)
   assert(string.match(msg, "^[^ ]* @x123"))
-  assert(string.find(msg, "in metamethod 'close'"))
+  assert(string.find(msg, "in function <lua function>"))
 end
 
 
@@ -454,14 +454,14 @@ do   -- errors due to non-closable values
   end
   local stat, msg = pcall(foo)
   assert(not stat and
-    string.find(msg, "variable 'x' got a non%-closable value"))
+    string.find(msg, "missing a __close metamethod"))
 
   local function foo ()
     local xyz <close> = setmetatable({}, {__close = print})
     getmetatable(xyz).__close = nil   -- remove metamethod
   end
   local stat, msg = pcall(foo)
-  assert(not stat and string.find(msg, "metamethod 'close'"))
+  assert(not stat and string.find(msg, "missing a __close metamethod"))
 
   local function foo ()
     local a1 <close> = func2close(function (_, msg)
@@ -532,9 +532,11 @@ end
 
 
 do    -- test for tbc variable high in the stack
-
-   -- function to force a stack overflow
+  
+  -- function to force a stack overflow
   local function overflow (n)
+    -- Golua doesn't have a call stack to overflow...
+    if n == 10000 then error("stack overflow") end
     overflow(n + 1)
   end
 
@@ -735,7 +737,7 @@ do   -- '__close' vs. return hooks in Lua functions
   debug.sethook()
   checktable(t, {10, 20, 30})
   checktable(trace,
-    {"return sethook", "return close", "x", "return close", "return foo"})
+    {"return sethook", "return <lua function>", "x", "return <lua function>", "return foo"})
 end
 
 

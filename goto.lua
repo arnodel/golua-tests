@@ -18,14 +18,14 @@ errmsg([[ ::l1:: do ::l1:: end]], "label 'l1'")
 
 
 -- undefined label
-errmsg([[ goto l1; local aa ::l1:: ::l2:: print(3) ]], "local 'aa'")
+errmsg([[ goto l1; local aa ::l1:: ::l2:: print(3) ]], "label 'l1'")
 
 -- jumping over variable definition
 errmsg([[
 do local bb, cc; goto l1; end
 local aa
 ::l1:: print(3)
-]], "local 'aa'")
+]], "label 'l1'")
 
 -- jumping into a block
 errmsg([[ do ::l1:: end goto l1 ]], "label 'l1'")
@@ -38,7 +38,7 @@ errmsg([[
     local xuxu = 10
     ::cont::
   until xuxu < x
-]], "local 'xuxu'")
+]], "label 'cont'")
 
 -- simple gotos
 local x
@@ -227,9 +227,9 @@ local function testG (a)
   elseif a == 2 then goto l2
   elseif a == 3 then goto l3
   elseif a == 4 then
-    goto l1  -- go to inside the block
+    goto l11  -- go to inside the block
     error("should never be here!")
-    ::l1:: a = a + 1   -- must go to 'if' end
+    ::l11:: a = a + 1   -- must go to 'if' end
   else
     goto l4
     ::l4a:: a = a * 2; goto l4b
