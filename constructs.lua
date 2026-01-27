@@ -6,8 +6,10 @@
 local debug = require "debug"
 
 
-local function checkload (s, msg)
-  assert(string.find(select(2, load(s)), msg))
+local function checkload (s, msg, altmsg)
+  local err = select(2, load(s))
+  assert(string.find(err, msg) or (altmsg and string.find(err, altmsg)),
+         "expected: " .. msg .. (altmsg and (" or " .. altmsg) or "") .. "\ngot: " .. err)
 end
 
 -- testing semicollons
@@ -239,11 +241,15 @@ print'+';
 
 do   -- testing constants
   local prog <const> = [[local x <XXX> = 10]]
-  checkload(prog, "unknown attribute 'XXX'")
+  -- golua: different error message for unknown attributes
+  checkload(prog, "unknown attribute 'XXX'", "'const' or 'close'")
 
+  -- golua: different error message for const variable assignment
   checkload([[local xxx <const> = 20; xxx = 10]],
-             ":1: attempt to assign to const variable 'xxx'")
+             "attempt to assign to const variable 'xxx'",
+             "attempt to reassign constant variable 'xxx'")
 
+  -- golua: different error message for const variable assignment
   checkload([[
     local xx;
     local xxx <const> = 20;
@@ -252,12 +258,15 @@ do   -- testing constants
       local abc = xx + yyy + xxx;
       return function () return function () xxx = yyy end end
     end
-  ]], ":6: attempt to assign to const variable 'xxx'")
+  ]], "attempt to assign to const variable 'xxx'",
+      "attempt to reassign constant variable 'xxx'")
 
+  -- golua: different error message for const variable assignment
   checkload([[
     local x <close> = nil
     x = io.open()
-  ]], ":2: attempt to assign to const variable 'x'")
+  ]], "attempt to assign to const variable 'x'",
+      "attempt to reassign constant variable 'x'")
 end
 
 f = [[

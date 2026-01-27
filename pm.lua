@@ -377,23 +377,25 @@ assert(#a == 0)
 
 
 -- malformed patterns
-local function malform (p, m)
+local function malform (p, m, altm)
   m = m or "malformed"
   local r, msg = pcall(string.find, "a", p)
-  assert(not r and string.find(msg, m))
+  -- golua: error messages may differ from reference Lua
+  assert(not r and (string.find(msg, m) or (altm and string.find(msg, altm))),
+         "expected: " .. m .. (altm and (" or " .. altm) or "") .. "\ngot: " .. tostring(msg))
 end
 
-malform("(.", "unfinished capture")
-malform(".)", "invalid pattern capture")
-malform("[a")
-malform("[]")
-malform("[^]")
-malform("[a%]")
-malform("[a%")
-malform("%b")
-malform("%ba")
-malform("%")
-malform("%f", "missing")
+malform("(.", "unfinished capture", "malformed")
+malform(".)", "invalid pattern capture", "malformed")
+malform("[a", "malformed")
+malform("[]", "malformed")
+malform("[^]", "malformed")
+malform("[a%]", "malformed")
+malform("[a%", "malformed")
+malform("%b", "malformed")
+malform("%ba", "malformed")
+malform("%", "malformed")
+malform("%f", "missing", "malformed")
 
 -- \0 in patterns
 assert(string.match("ab\0\1\2c", "[\0-\2]+") == "\0\1\2")

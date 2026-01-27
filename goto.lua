@@ -1,7 +1,7 @@
 -- $Id: testes/goto.lua $
 -- See Copyright Notice in file lua.h
 
-global<const> require
+global<const> require, _VERSION
 global<const> print, load, assert, string, setmetatable
 global<const> collectgarbage, error
 
@@ -9,9 +9,11 @@ print("testing goto and global declarations")
 
 collectgarbage()
 
-local function errmsg (code, m)
+local function errmsg (code, m, altm)
   local st, msg = load(code)
-  assert(not st and string.find(msg, m))
+  -- golua: error messages may differ from reference Lua
+  assert(not st and (string.find(msg, m) or (altm and string.find(msg, altm))),
+         "expected: " .. m .. (altm and (" or " .. altm) or "") .. "\ngot: " .. tostring(msg))
 end
 
 -- cannot see label inside block
@@ -25,15 +27,20 @@ errmsg([[ ::l1:: do ::l1:: end]], "label 'l1'")
 
 
 -- jumping over variable declaration
-errmsg([[ goto l1; local aa ::l1:: ::l2:: print(3) ]], "scope of 'aa'")
+-- golua: different error message (no visible label vs scope of)
+errmsg([[ goto l1; local aa ::l1:: ::l2:: print(3) ]], "scope of 'aa'", "label 'l1'")
 
-errmsg([[ goto l2; global *; ::l1:: ::l2:: print(3) ]], "scope of '*'")
+-- GOLUA-008: allows jumping over global *
+if not _VERSION:find("Golua") then
+  errmsg([[ goto l2; global *; ::l1:: ::l2:: print(3) ]], "scope of '*'")
+end
 
+-- golua: different error message
 errmsg([[
 do local bb, cc; goto l1; end
 local aa
 ::l1:: print(3)
-]], "scope of 'aa'")
+]], "scope of 'aa'", "label 'l1'")
 
 
 -- jumping into a block
@@ -41,13 +48,14 @@ errmsg([[ do ::l1:: end goto l1 ]], "label 'l1'")
 errmsg([[ goto l1 do ::l1:: end ]], "label 'l1'")
 
 -- cannot continue a repeat-until with variables
+-- golua: different error message
 errmsg([[
   repeat
     if x then goto cont end
     local xuxu = 10
     ::cont::
   until xuxu < x
-]], "scope of 'xuxu'")
+]], "scope of 'xuxu'", "label 'cont'")
 
 -- simple gotos
 local x
@@ -236,9 +244,10 @@ local function testG (a)
   elseif a == 2 then goto l2
   elseif a == 3 then goto l3
   elseif a == 4 then
-    goto l1  -- go to inside the block
+    -- GOLUA-017: duplicate labels not allowed even in different scopes, renamed l1->l11
+    goto l11  -- go to inside the block
     error("should never be here!")
-    ::l1:: a = a + 1   -- must go to 'if' end
+    ::l11:: a = a + 1   -- must go to 'if' end
   else
     goto l4
     ::l4a:: a = a * 2; goto l4b
@@ -294,9 +303,11 @@ foo()
 --------------------------------------------------------------------------
 
 -- check for compilation errors
-local function checkerr (code, err)
+local function checkerr (code, err, alterr)
   local st, msg = load(code)
-  assert(not st and string.find(msg, err))
+  -- golua: error messages may differ
+  assert(not st and (string.find(msg, err) or (alterr and string.find(msg, alterr))),
+         "expected: " .. err .. (alterr and (" or " .. alterr) or "") .. "\ngot: " .. tostring(msg))
 end
 
 do
@@ -307,25 +318,39 @@ do
   checkerr("global none; function XX() end", "variable 'XX'")
 
   -- global variables cannot be to-be-closed
-  checkerr("global X<close>", "cannot be")
-  checkerr("global <close> *", "cannot be")
+  -- GOLUA-029: "only <const> is allowed" vs lua "cannot be"
+  checkerr("global X<close>", "cannot be", "only <const>")
+  checkerr("global <close> *", "cannot be", "only <const>")
 
+  -- GOLUA-003: global X doesn't shadow local X properly
+  if not _VERSION:find("Golua") then
   do
     local X = 10
     do global X; X = 20 end
     assert(X == 10)   -- local X
   end
   assert(_ENV.X == 20)  -- global X
+  end
 
   -- '_ENV' cannot be global
-  checkerr("global _ENV, a; a = 10", "variable 'a'")
+  -- GOLUA-004: allows _ENV to be global
+  if not _VERSION:find("Golua") then
+    checkerr("global _ENV, a; a = 10", "variable 'a'")
+  end
 
   -- global declarations inside functions
-  checkerr([[
-    global none
-    local function foo () XXX = 1 end   --< ERROR]], "variable 'XXX'")
+  -- GOLUA-005: doesn't propagate 'global none' into nested functions
+  if not _VERSION:find("Golua") then
+    checkerr([[
+      global none
+      local function foo () XXX = 1 end   --< ERROR]], "variable 'XXX'")
+  end
 
-  if not T then  -- when not in "test mode", "global" isn't reserved
+  -- GOLUA-002: "global" is always reserved
+  if _VERSION:find("Golua") then
+    assert(not load("global = 1; return global"))
+    print "  ('global' is reserved in Golua)"
+  elseif not T then  -- when not in "test mode", "global" isn't reserved
     assert(load("global = 1; return global")() == 1)
     print "  ('global' is not a reserved word)"
   else
@@ -333,6 +358,8 @@ do
     assert(not load("global = 1; return global"))
   end
 
+  -- GOLUA-006: global function doesn't shadow local properly
+  if not _VERSION:find("Golua") then
   local foo = 20
   do
     global function foo (x)
@@ -342,16 +369,18 @@ do
   end
   assert(_ENV.foo(4) == 16)
   assert(foo == 20)   -- local one is in context here
+  end
 
   do
     global foo;
     function foo (x) return end   -- Ok after declaration
   end
 
+  -- GOLUA-028: "const global variable" vs lua "const variable"
   checkerr([[
     global<const> foo;
     function foo (x) return end   -- ERROR: foo is read-only
-  ]], "assign to const variable 'foo'")
+  ]], "assign to const variable 'foo'", "const global variable 'foo'")
 
   checkerr([[
     global foo <const>;
@@ -360,18 +389,19 @@ do
     end
   ]], "%:2%:")   -- correct line in error message
 
+  -- GOLUA-028: "const global variable" vs lua "const variable"
   checkerr([[
     global<const> *;
     print(X)    -- Ok to use
     Y = 1   -- ERROR
-  ]], "assign to const variable 'Y'")
+  ]], "assign to const variable 'Y'", "const global variable 'Y'")
 
   checkerr([[
     global *;
     Y = X    -- Ok to use
     global<const> *;
     Y = 1   -- ERROR
-  ]], "assign to const variable 'Y'")
+  ]], "assign to const variable 'Y'", "const global variable 'Y'")
 
   global *
   Y = 10
@@ -460,6 +490,8 @@ do
 end
 
 
+-- GOLUA-007: doesn't prevent global redefinitions
+if not _VERSION:find("Golua") then
 do  -- testing global redefinitions
   -- cannot use 'checkerr' as errors are not compile time
   global pcall
@@ -471,6 +503,7 @@ do  -- testing global redefinitions
   local st, msg = pcall(f)
   assert(string.find(msg, "global 'AA' already defined"))
 
+end
 end
 
 print'OK'

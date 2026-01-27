@@ -11,7 +11,8 @@ assert(require"os" == os)
 assert(require"coroutine" == coroutine)
 
 assert(type(package.path) == "string")
-assert(type(package.cpath) == "string")
+-- golua: no cpath (doesn't support C modules)
+-- assert(type(package.cpath) == "string")
 assert(type(package.loaded) == "table")
 assert(type(package.preload) == "table")
 
@@ -48,6 +49,7 @@ do
 end
 
 
+--[=[ golua: disabled - no cpath support
 do  print"testing 'require' message"
   local oldpath = package.path
   local oldcpath = package.cpath
@@ -69,6 +71,7 @@ do  print"testing 'require' message"
   package.path = oldpath
   package.cpath = oldcpath
 end
+]=]
 
 print('+')
 

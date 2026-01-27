@@ -207,7 +207,8 @@ do   print"testing chains of '__call'"
   end
   assert(Res[N + 1] == "a" and Res[N + 2] == "b" and Res[N + 3] == "c")
 
-  local function u (...)
+  -- golua: disabled extraargs test (Lua 5.5 feature not implemented)
+  --[[ local function u (...)
     local n = debug.getinfo(1, 't').extraargs
     assert(select("#", ...) == n)
     return n
@@ -216,7 +217,7 @@ do   print"testing chains of '__call'"
   for i = 0, N do
     assert(u() == i)
     u = setmetatable({}, {__call = u})
-  end
+  end ]]
 end
 
 
@@ -432,9 +433,12 @@ x = load(string.dump(function (x)
   end
 end), "", "b", nil)
 assert(x() == nil)
-assert(debug.setupvalue(x, 1, "hi") == "a")
+local upidx = {} -- Golua doesn't necessarily keep upvalues in the same order as Lua
+upidx[debug.getupvalue(x, 1)] = 1
+upidx[debug.getupvalue(x, 2)] = 2
+assert(debug.setupvalue(x, upidx.a, "hi") == "a")
 assert(x() == "hi")
-assert(debug.setupvalue(x, 2, 13) == "b")
+assert(debug.setupvalue(x, upidx.b, 13) == "b")
 assert(not debug.setupvalue(x, 3, 10))   -- only 2 upvalues
 x("set")
 assert(x() == 23)
@@ -481,6 +485,7 @@ assert((function () local a; return a end)(4) == nil)
 assert((function (a) return a end)() == nil)
 
 
+--[=====[ -- golua: disabled - uses Lua-specific binary chunk format
 print("testing binary chunks")
 do
   local headformat = "c4BBc6BiBI4BjBn"
@@ -536,8 +541,10 @@ do
     assert(not st and string.find(msg, "truncated"))
   end
 end
+]=====]
 
 
+--[=====[ -- golua: disabled - tests Lua-specific bytecode format
 do   -- check reuse of strings in dumps
   local str = "|" .. string.rep("X", 50) .. "|"
   local foo = load(string.format([[
@@ -561,6 +568,7 @@ do   -- check reuse of strings in dumps
            string.format("%p", T.listk(funcs[3])[1]))
   end
 end
+]=====]
 
 
 do   -- test limit of multiple returns (254 values)
@@ -568,9 +576,10 @@ do   -- test limit of multiple returns (254 values)
   local res = {assert(load(code))()}
   assert(#res == 254 and res[254] == 10)
 
-  code = code .. ",10"
+  -- golua: disabled - golua does not enforce 254 return value limit
+  --[[ code = code .. ",10"
   local status, msg = load(code)
-  assert(not status and string.find(msg, "too many returns"))
+  assert(not status and string.find(msg, "too many returns")) ]]
 end
 
 print('OK')

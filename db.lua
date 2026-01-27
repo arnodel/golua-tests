@@ -215,9 +215,9 @@ do   -- testing active lines
   local function checkactivelines (f, lines)
     local t = debug.getinfo(f, "SL")
     for _, l in pairs(lines) do
-      l = l + t.linedefined
-      assert(t.activelines[l])
-      t.activelines[l] = undef
+      local line = l + t.linedefined
+      assert(t.activelines[line])
+      t.activelines[line] = undef
     end
     assert(next(t.activelines) == nil)   -- no extra lines
   end
