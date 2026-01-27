@@ -62,6 +62,23 @@ f:close()
 
 print('testing i/o')
 
+-- On Windows, system processes (Windows Defender, indexer) may briefly hold file
+-- handles even after Close() returns. Wrap os.remove with retry logic.
+local isWindows = package.config:sub(1,1) == '\\'
+local origRemove = os.remove
+local function osremove(fname)
+  local ok, err = origRemove(fname)
+  if ok or not isWindows then return ok, err end
+  -- Retry a few times on Windows
+  for _ = 1, 10 do
+    collectgarbage()
+    ok, err = origRemove(fname)
+    if ok then return ok, err end
+  end
+  return ok, err
+end
+os.remove = osremove
+
 local otherfile = os.tmpname()
 
 checkerr("invalid mode", io.open, file, "rw")
