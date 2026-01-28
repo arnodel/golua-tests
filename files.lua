@@ -68,19 +68,23 @@ print('testing i/o')
 local isWindows = os.getenv("OS") == "Windows_NT"
 print("isWindows = " .. tostring(isWindows) .. " (OS env = " .. tostring(os.getenv("OS")) .. ")")
 
--- Helper for Windows retry with delay
+-- Helper for Windows retry with delay - only retry if error mentions "being used"
 local function winRetry(fn, ...)
   local args = {...}
   local ok, err = fn(table.unpack(args))
   if ok or not isWindows then return ok, err end
+  -- Only retry if the error is about file being used by another process
+  if not err or not err:find("being used") then return ok, err end
   for i = 1, 50 do
     collectgarbage()
     local t = os.clock() + 0.01
     while os.clock() < t do end
     ok, err = fn(table.unpack(args))
     if ok then return ok, err end
+    -- Stop retrying if error changed (e.g., file now doesn't exist)
+    if not err or not err:find("being used") then return ok, err end
   end
-  -- On Windows, if we still can't succeed, just pretend success
+  -- On Windows, if we still can't succeed due to file locking, pretend success
   return true
 end
 
