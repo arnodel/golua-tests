@@ -64,7 +64,8 @@ print('testing i/o')
 
 -- On Windows, system processes (Windows Defender, indexer) may briefly hold file
 -- handles even after Close() returns. Wrap os.remove with retry logic.
-local isWindows = package.config:sub(1,1) == '\\'
+-- Note: Golua doesn't set package.config to Windows values, so check env instead
+local isWindows = os.getenv("OS") == "Windows_NT"
 local origRemove = os.remove
 local function osremove(fname)
   local ok, err = origRemove(fname)
