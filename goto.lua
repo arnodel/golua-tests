@@ -322,15 +322,13 @@ do
   checkerr("global X<close>", "cannot be", "only <const>")
   checkerr("global <close> *", "cannot be", "only <const>")
 
-  -- GOLUA-003: global X doesn't shadow local X properly
-  if not _VERSION:find("Golua") then
+  -- GOLUA-003: fixed - global X now properly shadows local X
   do
     local X = 10
     do global X; X = 20 end
     assert(X == 10)   -- local X
   end
   assert(_ENV.X == 20)  -- global X
-  end
 
   -- '_ENV' cannot be global
   -- GOLUA-004: allows _ENV to be global
@@ -358,8 +356,7 @@ do
     assert(not load("global = 1; return global"))
   end
 
-  -- GOLUA-006: global function doesn't shadow local properly
-  if not _VERSION:find("Golua") then
+  -- GOLUA-006: fixed - global function now properly shadows local
   local foo = 20
   do
     global function foo (x)
@@ -369,7 +366,6 @@ do
   end
   assert(_ENV.foo(4) == 16)
   assert(foo == 20)   -- local one is in context here
-  end
 
   do
     global foo;
