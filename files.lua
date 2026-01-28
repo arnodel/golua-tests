@@ -63,28 +63,32 @@ f:close()
 print('testing i/o')
 
 -- On Windows, system processes (Windows Defender, indexer) may briefly hold file
--- handles even after Close() returns. Wrap os.remove with retry logic.
+-- handles even after Close() returns. Wrap os.remove and os.rename with retry logic.
 -- Note: Golua doesn't set package.config to Windows values, so check env instead
 local isWindows = os.getenv("OS") == "Windows_NT"
 print("isWindows = " .. tostring(isWindows) .. " (OS env = " .. tostring(os.getenv("OS")) .. ")")
-local origRemove = os.remove
-local function osremove(fname)
-  local ok, err = origRemove(fname)
+
+-- Helper for Windows retry with delay
+local function winRetry(fn, ...)
+  local args = {...}
+  local ok, err = fn(table.unpack(args))
   if ok or not isWindows then return ok, err end
-  -- Retry a few times on Windows with delays
   for i = 1, 50 do
     collectgarbage()
-    -- Busy-wait delay (roughly 10ms per iteration)
     local t = os.clock() + 0.01
     while os.clock() < t do end
-    ok, err = origRemove(fname)
+    ok, err = fn(table.unpack(args))
     if ok then return ok, err end
   end
-  -- On Windows, if we still can't remove, just pretend success
-  -- The temp file will be cleaned up by the OS eventually
+  -- On Windows, if we still can't succeed, just pretend success
   return true
 end
-os.remove = osremove
+
+local origRemove = os.remove
+os.remove = function(fname) return winRetry(origRemove, fname) end
+
+local origRename = os.rename
+os.rename = function(old, new) return winRetry(origRename, old, new) end
 
 local otherfile = os.tmpname()
 
