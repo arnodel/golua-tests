@@ -66,6 +66,7 @@ print('testing i/o')
 -- handles even after Close() returns. Wrap os.remove with retry logic.
 -- Note: Golua doesn't set package.config to Windows values, so check env instead
 local isWindows = os.getenv("OS") == "Windows_NT"
+print("isWindows = " .. tostring(isWindows) .. " (OS env = " .. tostring(os.getenv("OS")) .. ")")
 local origRemove = os.remove
 local function osremove(fname)
   local ok, err = origRemove(fname)
