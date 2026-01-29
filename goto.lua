@@ -3,7 +3,7 @@
 
 global<const> require, _VERSION
 global<const> print, load, assert, string, setmetatable
-global<const> collectgarbage, error
+global<const> collectgarbage, error, tostring
 
 print("testing goto and global declarations")
 
@@ -337,12 +337,9 @@ do
   end
 
   -- global declarations inside functions
-  -- GOLUA-005: doesn't propagate 'global none' into nested functions
-  if not _VERSION:find("Golua") then
-    checkerr([[
-      global none
-      local function foo () XXX = 1 end   --< ERROR]], "variable 'XXX'")
-  end
+  checkerr([[
+    global none
+    local function foo () XXX = 1 end   --< ERROR]], "variable 'XXX'")
 
   -- GOLUA-002: "global" is always reserved
   if _VERSION:find("Golua") then
