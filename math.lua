@@ -716,8 +716,7 @@ assert(eq(math.exp(0), 1))
 assert(eq(math.sin(10), math.sin(10%(2*math.pi))))
 
 
--- GOLUA-019: math.frexp and math.ldexp not implemented
-if math.frexp then
+do
   print("testing ldexp/frexp")
   global ipairs
   for _, x in ipairs{0, 10, 32, -math.pi, 1e10, 1e-10, math.huge, -math.huge} do
