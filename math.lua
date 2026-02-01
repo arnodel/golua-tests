@@ -240,14 +240,9 @@ assert(minint <= minint + 0.0)
 assert(minint + 0.0 <= minint)
 assert(not (minint < minint + 0.0))
 assert(not (minint + 0.0 < minint))
--- GOLUA-018: numeric precision differs for edge cases
-if not _VERSION:find("Golua") then
-  assert(maxint < minint * -1.0)
-  assert(maxint <= minint * -1.0)
-end
+assert(maxint < minint * -1.0)
+assert(maxint <= minint * -1.0)
 
--- GOLUA-018: numeric precision edge cases differ
-if not _VERSION:find("Golua") then
 do
   local fmaxi1 = 2^(intbits - 1)
   assert(maxint < fmaxi1)
@@ -255,7 +250,6 @@ do
   assert(not (fmaxi1 <= maxint))
   assert(minint <= -2^(intbits - 1))
   assert(-2^(intbits - 1) <= minint)
-end
 end
 
 if floatbits < intbits then
@@ -327,15 +321,9 @@ local function checkcompt (msg, code)
 end
 checkcompt("divide by zero", "return 2 // 0")
 checkcompt(msgf2i, "return 2.3 >> 0")
--- GOLUA-018: float-to-integer conversion for bitwise ops handles edge cases differently
-if not _VERSION:find("Golua") then
-  checkcompt(msgf2i, ("return 2.0^%d & 1"):format(intbits - 1))
-end
+checkcompt(msgf2i, ("return 2.0^%d & 1"):format(intbits - 1))
 checkcompt("field 'huge'", "return math.huge << 1")
--- GOLUA-018: float-to-integer conversion for bitwise ops handles edge cases differently
-if not _VERSION:find("Golua") then
-  checkcompt(msgf2i, ("return 1 | 2.0^%d"):format(intbits - 1))
-end
+checkcompt(msgf2i, ("return 1 | 2.0^%d"):format(intbits - 1))
 checkcompt(msgf2i, "return 2.3 ~ 0.0")
 
 
@@ -349,10 +337,7 @@ if floatbits < intbits then
   -- conversion tests when float cannot represent all integers
   assert(maxint + 1.0 == maxint + 0.0)
   assert(minint - 1.0 == minint + 0.0)
-  -- GOLUA-018: float-to-integer conversion doesn't properly detect non-representable numbers
-  if not _VERSION:find("Golua") then
-    checkerror(msgf2i, f2i, maxint + 0.0)
-  end
+  checkerror(msgf2i, f2i, maxint + 0.0)
   assert(f2i(2.0^(intbits - 2)) == 1 << (intbits - 2))
   assert(f2i(-2.0^(intbits - 2)) == -(1 << (intbits - 2)))
   assert((2.0^(floatbits - 1) + 1.0) // 1 == (1 << (floatbits - 1)) + 1)
@@ -360,10 +345,7 @@ if floatbits < intbits then
   local mf = maxint - (1 << (floatbits - intbits)) + 1
   assert(f2i(mf + 0.0) == mf)  -- OK up to here
   mf = mf + 1
-  -- GOLUA-018: float-to-integer conversion allows imprecise conversion
-  if not _VERSION:find("Golua") then
-    assert(f2i(mf + 0.0) ~= mf)   -- no more representable
-  end
+  assert(f2i(mf + 0.0) ~= mf)   -- no more representable
 else
   -- conversion tests when float can represent all integers
   assert(maxint + 1.0 > maxint)
@@ -767,10 +749,7 @@ do   -- testing floor & ceil
   assert(eqT(math.tointeger(maxint), maxint))
   assert(eqT(math.tointeger(maxint .. ""), maxint))
   assert(eqT(math.tointeger(minint + 0.0), minint))
-  -- GOLUA-018: float-to-integer conversion allows imprecise values
-  if not _VERSION:find("Golua") then
-    assert(not math.tointeger(0.0 - minint))
-  end
+  assert(not math.tointeger(0.0 - minint))
   assert(not math.tointeger(math.pi))
   assert(not math.tointeger(-math.pi))
   assert(math.floor(math.huge) == math.huge)
