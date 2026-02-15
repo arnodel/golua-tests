@@ -330,10 +330,8 @@ do
   assert(_ENV.X == 20)  -- global X
 
   -- '_ENV' cannot be global
-  -- GOLUA-004: allows _ENV to be global
-  if not _VERSION:find("Golua") then
-    checkerr("global _ENV, a; a = 10", "variable 'a'")
-  end
+  -- golua: different error message
+  checkerr("global _ENV, a; a = 10", "variable 'a'", "_ENV")
 
   -- global declarations inside functions
   checkerr([[
