@@ -1065,9 +1065,9 @@ do
 end
 
 
--- GOLUA-021: accepts extra arguments to math.random
+-- GOLUA-021: golua accepts extra arguments (accepted difference)
 if not _VERSION:find("Golua") then
-  assert(not pcall(random, 1, 2, 3))    -- too many arguments
+assert(not pcall(random, 1, 2, 3))    -- too many arguments
 end
 
 -- empty interval
@@ -1132,8 +1132,6 @@ do
   -- create random float numerals with 5 digits, with a decimal point
   -- inserted in all places. (With more than 5, things like "0.00001"
   -- reformats like "1e-5".)
-  -- GOLUA-022: tostring doesn't preserve trailing .0 for whole numbers
-  if not _VERSION:find("Golua") then
   for i = 1, 1000 do
     -- random numeral with 5 digits
     local x = string.format("%.5d", math.random(0, 99999))
@@ -1143,7 +1141,6 @@ do
       y = string.gsub(y, "^0*(%d.-%d)0*$", "%1")   -- trim extra zeros
       assert(y == tostring(tonumber(y)))
     end
-  end
   end
 
   -- all-random floats

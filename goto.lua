@@ -322,7 +322,6 @@ do
   checkerr("global X<close>", "cannot be", "only <const>")
   checkerr("global <close> *", "cannot be", "only <const>")
 
-  -- GOLUA-003: fixed - global X now properly shadows local X
   do
     local X = 10
     do global X; X = 20 end
@@ -353,7 +352,6 @@ do
     assert(not load("global = 1; return global"))
   end
 
-  -- GOLUA-006: fixed - global function now properly shadows local
   local foo = 20
   do
     global function foo (x)
