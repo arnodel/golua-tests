@@ -479,8 +479,6 @@ do
 end
 
 
--- GOLUA-007: doesn't prevent global redefinitions
-if not _VERSION:find("Golua") then
 do  -- testing global redefinitions
   -- cannot use 'checkerr' as errors are not compile time
   global pcall
@@ -492,7 +490,6 @@ do  -- testing global redefinitions
   local st, msg = pcall(f)
   assert(string.find(msg, "global 'AA' already defined"))
 
-end
 end
 
 print'OK'
