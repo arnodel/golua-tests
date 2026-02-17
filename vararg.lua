@@ -101,8 +101,6 @@ a,b,c,d,e = f(4)
 assert(a==nil and b==nil and c==nil and d==nil and e==nil)
 
 
--- GOLUA-010: vararg table doesn't use t.n field when unpacking, uses slice length instead
-if not _VERSION:find("Golua") then
 do  -- vararg expressions using unpack
   local function aux (a, v, ...t)
     for k, val in pairs(v) do t[k] = val end
@@ -133,7 +131,6 @@ do  -- vararg expressions using unpack
   checkerr("no proper 'n'", aux, 1, 1, math.maxinteger)
   checkerr("no proper 'n'", aux, 1, 1, math.mininteger)
   checkerr("no proper 'n'", aux, 1, 1, 1.0)
-end
 end
 
 -- varargs for main chunks
