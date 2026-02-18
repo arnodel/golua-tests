@@ -338,11 +338,7 @@ do
     global none
     local function foo () XXX = 1 end   --< ERROR]], "variable 'XXX'")
 
-  -- GOLUA-002: "global" is always reserved
-  if _VERSION:find("Golua") then
-    assert(not load("global = 1; return global"))
-    print "  ('global' is reserved in Golua)"
-  elseif not T then  -- when not in "test mode", "global" isn't reserved
+  if not T then  -- when not in "test mode", "global" isn't reserved
     assert(load("global = 1; return global")() == 1)
     print "  ('global' is not a reserved word)"
   else
