@@ -916,6 +916,10 @@ f:write("alo")
 f:seek("set")
 assert(f:read"a" == "alo")
 
+if winNotPerformed > 0 then
+  print(string.format("%d file operation(s) NOT PERFORMED on Windows (golua#168)", winNotPerformed))
+end
+
 end --}
 
 print'+'
@@ -1091,9 +1095,5 @@ s = tonumber(s)
 io.write(string.format('test done on %2.2d/%2.2d/%d', d, m, a))
 io.write(string.format(', at %2.2d:%2.2d:%2.2d\n', h, min, s))
 io.write(string.format('%s\n', _VERSION))
-
-if winNotPerformed > 0 then
-  print(string.format("%d file operation(s) NOT PERFORMED on Windows (golua#168)", winNotPerformed))
-end
 
 
