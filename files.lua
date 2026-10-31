@@ -69,13 +69,21 @@ local isWindows = os.getenv("OS") == "Windows_NT"
 print("isWindows = " .. tostring(isWindows) .. " (OS env = " .. tostring(os.getenv("OS")) .. ")")
 
 -- Helper for Windows retry with delay - only retry if error mentions "being used"
+--
+-- Golua closes collected files from a Go cleanup callback that runs after
+-- collectgarbage() returns, and Windows refuses to rename or remove an open
+-- file, so the operation can fail until that callback has run (or until a
+-- system process such as Defender lets go of the file).  Each retry collects
+-- garbage again and waits a little.  If it still fails after a few seconds the
+-- real result is returned: pretending success here made the next assertion
+-- fail in a confusing way (files.lua:160 renaming a file that should be gone).
 local function winRetry(fn, ...)
   local args = {...}
   local ok, err = fn(table.unpack(args))
   if ok or not isWindows then return ok, err end
   -- Only retry if the error is about file being used by another process
   if not err or not err:find("being used") then return ok, err end
-  for i = 1, 50 do
+  for i = 1, 300 do
     collectgarbage()
     local t = os.clock() + 0.01
     while os.clock() < t do end
@@ -84,8 +92,7 @@ local function winRetry(fn, ...)
     -- Stop retrying if error changed (e.g., file now doesn't exist)
     if not err or not err:find("being used") then return ok, err end
   end
-  -- On Windows, if we still can't succeed due to file locking, pretend success
-  return true
+  return ok, err
 end
 
 local origRemove = os.remove
