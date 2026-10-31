@@ -115,8 +115,28 @@ end
 local origRemove = os.remove
 os.remove = function(fname) return winReport("remove", fname, winRetry(origRemove, fname)) end
 
+-- A rename that is refused is replaced by a copy, so that the content is
+-- where the following tests expect it; the source is then removed if the OS
+-- lets us (its remove is reported separately if not).
+local function copyFile(from, to)
+  local src = assert(io.open(from, "rb"))
+  local data = src:read("a")
+  src:close()
+  local dst = assert(io.open(to, "wb"))
+  dst:write(data)
+  dst:close()
+end
+
 local origRename = os.rename
-os.rename = function(old, new) return winReport("rename", old, winRetry(origRename, old, new)) end
+os.rename = function(old, new)
+  local ok, err = winReport("rename", old, winRetry(origRename, old, new))
+  if winFakedLast then
+    copyFile(old, new)
+    winReport("remove", old, winRetry(origRemove, old))
+    winFakedLast = true  -- the source may still be there
+  end
+  return ok, err
+end
 
 local otherfile = os.tmpname()
 
